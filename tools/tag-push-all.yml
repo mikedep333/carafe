@@ -1,0 +1,8 @@
+---
+- import_playbook: tag-push.yml
+  vars:
+    images:
+      - pulp-core
+      - pulp-worker
+      - pulp-resource-manager
+      - redis

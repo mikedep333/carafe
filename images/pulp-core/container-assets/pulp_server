@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /root/pulp/
+exec scl enable rh-python36 "python manage.py runserver 0.0.0.0:8080"
