@@ -38,4 +38,8 @@ while waiting < 900
 end
 
 system("oc get pods")
+
+pp "Run test commands"
+`test-data`
+
 abort("Ping failed") unless up
