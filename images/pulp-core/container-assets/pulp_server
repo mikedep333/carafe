@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd /root/pulp/
-exec scl enable rh-python36 "python manage.py runserver 0.0.0.0:8080"
+exec scl enable rh-python36 "gunicorn -b 0.0.0.0:8000 pulpcore.app.wsgi:application"

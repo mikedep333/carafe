@@ -22,3 +22,5 @@ vagrant/Gemfile.lock
 vagrant/settings.yaml
 vagrant/boxes.d/*-local.yaml
 vagrant/boxes.d/80-tmp-*.yaml
+.tmp
+inventories/pulp-systemd

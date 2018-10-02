@@ -8,3 +8,4 @@ DATABASES = {
     },
 }
 
+STATIC_ROOT = '/var/lib/pulp/static'

@@ -1,0 +1,14 @@
+[Unit]
+Description=Pulp Worker
+After=docker.service
+Requires=docker.service postgresql.service redis.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill pulp-worker1
+ExecStartPre=-/usr/bin/docker rm pulp-worker1
+ExecStartPre=/usr/bin/docker pull quay.io/carafe/pulp-worker
+ExecStart=/usr/bin/docker run --name pulp-worker1 -e POSTGRES_SERVICE_HOST={{ ansible_default_ipv4.address }} -e REDIS_SERVICE_HOST={{ ansible_default_ipv4.address }} -e REDIS_SERVICE_PORT=6379 -v /etc/pulp/settings.py:/etc/pulp/settings.py -v /var/lib/pulp:/var/lib/pulp quay.io/carafe/pulp-worker
+
+[Install]
+WantedBy=multi-user.target

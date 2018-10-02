@@ -1,0 +1,14 @@
+[Unit]
+Description=Postgresql
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill postgresql1
+ExecStartPre=-/usr/bin/docker rm postgresql1
+ExecStartPre=/usr/bin/docker pull ansible/postgresql
+ExecStart=/usr/bin/docker run --name postgresql1 -e POSTGRES_DB={{ database_name }} -e POSTGRES_USER={{ database_user }} -e POSTGRES_PASS={{ database_password }} -e PGDATA=/var/lib/pgsql/data/userdata -v /var/lib/pgsql/data:/var/lib/pgsql/data/userdata --publish 5432:5432 ansible/postgresql
+
+[Install]
+WantedBy=multi-user.target

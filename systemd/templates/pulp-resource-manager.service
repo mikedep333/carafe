@@ -1,0 +1,14 @@
+[Unit]
+Description=Pulp Resource Manager
+After=docker.service
+Requires=docker.service postgresql.service redis.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill pulp-resource-manager1
+ExecStartPre=-/usr/bin/docker rm pulp-resource-manager1
+ExecStartPre=/usr/bin/docker pull quay.io/carafe/pulp-resource-manager
+ExecStart=/usr/bin/docker run --name pulp-resource-manager1 -e POSTGRES_SERVICE_HOST={{ ansible_default_ipv4.address }} -e REDIS_SERVICE_HOST={{ ansible_default_ipv4.address }} -e REDIS_SERVICE_PORT=6379 -v /etc/pulp/settings.py:/etc/pulp/settings.py quay.io/carafe/pulp-resource-manager
+
+[Install]
+WantedBy=multi-user.target

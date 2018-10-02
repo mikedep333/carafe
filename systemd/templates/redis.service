@@ -1,0 +1,14 @@
+[Unit]
+Description=Redis
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill redis1
+ExecStartPre=-/usr/bin/docker rm redis1
+ExecStartPre=/usr/bin/docker pull quay.io/carafe/redis
+ExecStart=/usr/bin/docker run --name redis1 --publish 6379:6379 -e REDIS_DB=pulp -e REDIS_USER=pulp -e REDIS_PASS=pulp -v /var/lib/redis:/var/lib/redis quay.io/carafe/redis
+
+[Install]
+WantedBy=multi-user.target
