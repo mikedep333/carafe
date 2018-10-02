@@ -1,0 +1,65 @@
+---
+- hosts: pulp-systemd
+  become: true
+  vars:
+    secret_key: "{{ lookup('password', '/dev/null length=50 chars=ascii_letters') }}"
+    database_name: pulp
+    database_user: pulp
+    database_password: pulp
+  tasks:
+    - name: Disable selinux
+      command: setenforce 0
+
+    - name: Deploy systemd files
+      template:
+        src: "systemd/templates/{{ item }}.service"
+        dest: "/etc/systemd/system/{{ item }}.service"
+      with_items:
+        - postgresql
+        - redis
+        - pulp-core
+        - pulp-worker
+        - pulp-resource-manager
+
+    - name: Ensure /var/lib/redis
+      file:
+        state: directory
+        path: /var/lib/redis
+
+    - name: Make postgres user
+      user:
+        name: postgres
+
+    - name: Ensure /var/lib/pgsql/data
+      file:
+        state: directory
+        path: /var/lib/pgsql/data
+        owner: 1000
+        group: 1000
+
+    - name: Ensure /etc/pulp
+      file:
+        state: directory
+        path: /etc/pulp
+
+    - name: Ensure /var/lib/pulp
+      file:
+        state: directory
+        path: /var/lib/pulp
+
+    - name: Deploy settings.py
+      template:
+        src: systemd/templates/settings.py
+        dest: /etc/pulp/settings.py
+
+    - name: Start services
+      systemd:
+        name: "{{ item }}"
+        daemon_reload: yes
+        state: restarted
+      with_items:
+        - postgresql
+        - redis
+        - pulp-core
+        - pulp-worker
+        - pulp-resource-manager

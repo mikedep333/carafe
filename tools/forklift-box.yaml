@@ -1,0 +1,72 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Make tmp dir
+      file:
+        state: directory
+        path: ../.tmp
+
+    - name: Clone forklift
+      command: git clone https://github.com/theforeman/forklift
+      args:
+        chdir: ../.tmp
+        creates: forklift
+
+    - include_role:
+        name: forklift
+      vars:
+        current_directory: ../.tmp/forklift
+        forklift_state: up
+        forklift_name: pulp-systemd
+        forklift_boxes:
+          pulp-systemd:
+            box: centos7
+            memory: 4680
+
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: 'Get vagrant inventory'
+      command: ./vagrant.py --list
+      args:
+        chdir: ../.tmp/forklift/inventories
+      register: inventory
+
+    - set_fact:
+        content: "{{ inventory.stdout | from_json }}"
+
+    - name: 'Write inventory'
+      copy:
+        content: |
+          ---
+          all:
+            hosts:
+              {{ content | to_yaml }}
+        dest: ../inventories/pulp-systemd
+
+- hosts: pulp-systemd
+  become: true
+  gather_facts: no
+  tasks:
+    - name: 'Install epel'
+      command: yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      ignore_errors: true
+
+    - name: 'Install docker'
+      yum:
+        name: docker
+        state: present
+
+    - name: 'Configure insecure registry'
+      lineinfile:
+        dest: /etc/sysconfig/docker
+        line: INSECURE_REGISTRY='--insecure-registry 172.30.0.0/16'
+        regexp: "^INSECURE_REGISTRY"
+      notify:
+        - 'Restart docker'
+  handlers:
+    - name: 'Restart docker'
+      service:
+        name: docker
+        state: restarted

@@ -15,6 +15,8 @@ RUN git clone https://github.com/pulp/pulp.git
 RUN git clone https://github.com/pulp/pulp_file.git
 RUN git clone https://github.com/pulp/pulp_ansible.git
 
+RUN scl enable rh-python36 'pip install gunicorn'
+
 WORKDIR /root/pulp
 RUN scl enable rh-python36 'pip install -e pulpcore/'
 RUN scl enable rh-python36 'pip install -e plugin/'
@@ -25,12 +27,15 @@ RUN scl enable rh-python36 'pip install -e .'
 WORKDIR /root/pulp_ansible
 RUN scl enable rh-python36 'pip install -e .'
 
+WORKDIR /root/pulp
+
 COPY container-assets/settings.py /etc/pulp/settings.py
 RUN echo "SECRET_KEY = '`cat /dev/urandom | tr -dc 'a-z0-9!@#$%^&*(\-_=+)' | head -c 50`'" >> /etc/pulp/settings.py
 
 RUN scl enable rh-python36 "pulp-manager makemigrations pulp_app"
 RUN scl enable rh-python36 "pulp-manager makemigrations pulp_file"
 RUN scl enable rh-python36 "pulp-manager makemigrations pulp_ansible"
+RUN scl enable rh-python36 "pulp-manager collectstatic --noinput"
 
 COPY container-assets/wait_on_postgres.py /usr/bin/wait_on_postgres.py
 COPY container-assets/pulp_server /usr/bin/pulp_server

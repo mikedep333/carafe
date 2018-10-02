@@ -1,0 +1,14 @@
+[Unit]
+Description=Pulp Core
+After=docker.service
+Requires=docker.service postgresql.service redis.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill pulp-core1
+ExecStartPre=-/usr/bin/docker rm pulp-core1
+ExecStartPre=/usr/bin/docker pull quay.io/carafe/pulp-core
+ExecStart=/usr/bin/docker run --name pulp-core1 -e POSTGRES_SERVICE_HOST={{ ansible_default_ipv4.address }} -v /etc/pulp/settings.py:/etc/pulp/settings.py -v /var/lib/pulp:/var/lib/pulp --publish 8000:8000 quay.io/carafe/pulp-core
+
+[Install]
+WantedBy=multi-user.target
