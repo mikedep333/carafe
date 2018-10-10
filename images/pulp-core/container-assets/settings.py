@@ -8,4 +8,6 @@ DATABASES = {
     },
 }
 
-STATIC_ROOT = '/var/lib/pulp/static'
+STATIC_ROOT = '/var/lib/pulp/staticfiles'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

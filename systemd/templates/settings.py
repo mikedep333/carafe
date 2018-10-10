@@ -1,3 +1,5 @@
+from django.conf import settings
+
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -20,7 +22,20 @@ SECRET_KEY = "{{ secret_key }}"
 # `DEBUG`: A boolean that turns on/off debug mode. See the Django docs for more information on the
 # behaviors this affects.
 #
-DEBUG = True
+STATIC_ROOT = '/var/lib/pulp/staticfiles'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 # `MEDIA_ROOT`: Location where Pulp stores files (Artifacts, published metadata, etc)
 #
