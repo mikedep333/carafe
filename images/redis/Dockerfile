@@ -1,6 +1,7 @@
 FROM centos:7
 
 RUN echo "tsflags=nodocs" >> /etc/yum.conf && \
+		yum -y update && \
 		yum -y install epel-release && \
 		yum -y install redis && \
 		yum clean all
